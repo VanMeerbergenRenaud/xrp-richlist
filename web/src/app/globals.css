@@ -1,0 +1,71 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #000000;
+  --foreground: #ffffff;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+/* Styles personnalisés pour les tableaux */
+.stats-table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.stats-table th,
+.stats-table td {
+  border: 1px solid #4a5568;
+  padding: 8px 12px;
+  text-align: left;
+}
+
+.stats-table th {
+  background-color: #2d3748;
+  color: #e2e8f0;
+  font-weight: 600;
+}
+
+.stats-table tbody tr:hover {
+  background-color: #2d3748;
+}
+
+.stats-table tbody tr:nth-child(even) {
+  background-color: #1a202c;
+}
+
+.stats-table tbody tr:nth-child(odd) {
+  background-color: #2d3748;
+}
+
+/* Navigation onglets */
+.tab-active {
+  background-color: #2d3748;
+  border-bottom: 2px solid #38b2ac;
+}
+
+/* Formatage des nombres */
+.number-cell {
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  text-align: right;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .stats-table {
+    font-size: 0.875rem;
+  }
+
+  .stats-table th,
+  .stats-table td {
+    padding: 6px 8px;
+  }
+}
