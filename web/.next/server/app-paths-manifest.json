@@ -1,3 +1,5 @@
 {
+  "/api/backend/[...path]/route": "app/api/backend/[...path]/route.js",
+  "/api/backend/stats/balance-distribution/route": "app/api/backend/stats/balance-distribution/route.js",
   "/page": "app/page.js"
 }

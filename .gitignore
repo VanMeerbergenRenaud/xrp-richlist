@@ -41,7 +41,9 @@ yarn-error.log*
 web/next-env.d.ts
 
 .idea
-./idea
 /.idea
 
 .pg
+
+/web/.next
+.next*

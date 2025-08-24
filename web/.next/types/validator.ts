@@ -53,6 +53,24 @@ type RouteHandlerConfig<Route extends AppRouteHandlerRoutes = AppRouteHandlerRou
   handler satisfies AppPageConfig<"/">
 }
 
+// Validate ../src/app/api/backend/[...path]/route.ts
+{
+  const handler = {} as typeof import("../src/app/api/backend/[...path]/route.js")
+  handler satisfies RouteHandlerConfig<"/api/backend/[...path]">
+}
+
+// Validate ../src/app/api/backend/stats/balance-distribution/route.ts
+{
+  const handler = {} as typeof import("../src/app/api/backend/stats/balance-distribution/route.js")
+  handler satisfies RouteHandlerConfig<"/api/backend/stats/balance-distribution">
+}
+
+// Validate ../src/app/api/backend/stats/percentages/route.ts
+{
+  const handler = {} as typeof import("../src/app/api/backend/stats/percentages/route.js")
+  handler satisfies RouteHandlerConfig<"/api/backend/stats/percentages">
+}
+
 // Validate ../src/app/api/stats/route.ts
 {
   const handler = {} as typeof import("../src/app/api/stats/route.js")
