@@ -2,8 +2,14 @@ from fastapi import FastAPI, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 import os, asyncpg, asyncio
 from datetime import datetime, timedelta
+from typing import Any, Dict, List, Optional
 
-app = FastAPI(title="XRP Rich List API", version="2.0.0")
+# XRPL client
+from xrpl.clients import JsonRpcClient
+from xrpl.models.requests import AccountInfo, AccountTx
+from xrpl.utils import drops_to_xrp, ripple_time_to_datetime
+
+app = FastAPI(title="XRP Rich List API", version="2.1.0")
 
 # CORS pour permettre les requêtes du frontend
 app.add_middleware(
@@ -23,6 +29,13 @@ stats_cache = {
     "total_xrp": 0
 }
 
+XRPL_RPC_URLS = [
+    "https://s1.ripple.com:51234",
+    "https://s2.ripple.com:51234",
+    "https://xrplcluster.com",
+    "https://xrpl.ws",
+]
+
 async def get_pool():
     if not hasattr(app.state, "pool"):
         app.state.pool = await asyncpg.create_pool(
@@ -33,6 +46,131 @@ async def get_pool():
         )
     return app.state.pool
 
+# =========================
+# Utilitaires XRPL (synchro)
+# =========================
+def _fetch_account_balance_sync(account: str) -> Optional[float]:
+    """Retourne la balance en XRP (float) depuis XRPL pour un compte, ou None en cas d'échec."""
+    for url in XRPL_RPC_URLS:
+        try:
+            client = JsonRpcClient(url)
+            resp = client.request(AccountInfo(account=account, ledger_index="validated"))
+            if not resp.is_successful():
+                continue
+            balance_drops = resp.result["account_data"]["Balance"]
+            return float(drops_to_xrp(balance_drops))
+        except Exception:
+            continue
+    return None
+
+def _fetch_recent_txs_sync(account: str, limit: int = 10) -> List[Dict[str, Any]]:
+    """Retourne les transactions récentes d'un compte (simplifiées)."""
+    for url in XRPL_RPC_URLS:
+        try:
+            client = JsonRpcClient(url)
+            resp = client.request(AccountTx(
+                account=account,
+                ledger_index_min=-1,
+                ledger_index_max=-1,
+                limit=limit
+            ))
+            if not resp.is_successful():
+                continue
+
+            txs: List[Dict[str, Any]] = []
+            for entry in resp.result.get("transactions", []):
+                tx = entry.get("tx", {}) or {}
+                meta = entry.get("meta", {}) or {}
+                tx_type = tx.get("TransactionType")
+                amount_xrp: Optional[float] = None
+                amt = tx.get("Amount")
+                if isinstance(amt, str):
+                    # valeur en drops
+                    try:
+                        amount_xrp = float(drops_to_xrp(amt))
+                    except Exception:
+                        amount_xrp = None
+                elif isinstance(amt, dict) and "value" in amt:
+                    # IOU ou autre structure
+                    try:
+                        amount_xrp = float(amt["value"])
+                    except Exception:
+                        amount_xrp = None
+
+                date_iso: Optional[str] = None
+                if "date" in tx and tx["date"] is not None:
+                    try:
+                        date_iso = ripple_time_to_datetime(tx["date"]).isoformat()
+                    except Exception:
+                        date_iso = None
+
+                txs.append({
+                    "hash": tx.get("hash"),
+                    "type": tx_type,
+                    "amount_xrp": amount_xrp,
+                    "destination": tx.get("Destination"),
+                    "result": meta.get("TransactionResult"),
+                    "ledger_index": tx.get("ledger_index"),
+                    "date": date_iso,
+                })
+            return txs
+        except Exception:
+            continue
+    return []
+
+# =========================
+# Services de domaine
+# =========================
+async def get_account_full_info(account: str) -> Dict[str, Any]:
+    """Retourne balance, rang, total des comptes et transactions récentes pour un compte."""
+    pool = await get_pool()
+
+    # Récupérer en base si possible
+    row = await pool.fetchrow(
+        "SELECT account, balance_xrp FROM accounts WHERE account = $1",
+        account
+    )
+
+    if row:
+        balance_xrp = float(row["balance_xrp"])
+    else:
+        # Interroger XRPL si le compte n'est pas en base
+        balance_live = await asyncio.to_thread(_fetch_account_balance_sync, account)
+        balance_xrp = float(balance_live) if balance_live is not None else 0.0
+
+    # Total des comptes
+    total_accounts = stats_cache.get("total_accounts")
+    if not total_accounts or total_accounts == 0:
+        total_row = await pool.fetchrow("SELECT COUNT(*) AS c FROM accounts")
+        total_accounts = int(total_row["c"]) if total_row else 0
+        stats_cache["total_accounts"] = total_accounts
+
+    # Rang (même si le compte n'est pas en base, on compare par balance)
+    rank = None
+    if total_accounts and total_accounts > 0:
+        rank_row = await pool.fetchrow(
+            "SELECT COUNT(*) + 1 AS rank FROM accounts WHERE balance_xrp > $1",
+            balance_xrp
+        )
+        rank = int(rank_row["rank"]) if rank_row and rank_row["rank"] is not None else None
+
+    # Transactions récentes
+    transactions = await asyncio.to_thread(_fetch_recent_txs_sync, account, 10)
+    last_tx_date = transactions[0]["date"] if transactions else None
+
+    return {
+        "account": account,
+        "balance_xrp": balance_xrp,
+        "rank": rank,
+        "total_accounts": total_accounts,
+        "rank_percent": (rank / total_accounts * 100) if rank and total_accounts else None,
+        "last_transaction": last_tx_date,
+        "transactions": transactions,
+    }
+
+# =========================
+# Statistiques (cache)
+# =========================
 async def update_stats_cache():
     """Mise à jour du cache des statistiques"""
     try:
@@ -73,7 +211,7 @@ async def update_stats_cache():
             })
             return
 
-        # Distribution des soldes - requête optimisée
+        # Distribution des soldes
         distribution_query = """
         SELECT 
             CASE 
@@ -143,6 +281,7 @@ async def update_stats_cache():
             END
         """
 
+        pool = await get_pool()
         distribution_rows = await pool.fetch(distribution_query)
         stats_cache["balance_distribution"] = [
             {
@@ -213,7 +352,7 @@ async def startup_event():
 async def root():
     return {
         "service": "XRP Rich List API",
-        "version": "2.0.0",
+        "version": "2.1.0",
         "total_accounts": stats_cache.get("total_accounts", 0),
         "total_xrp": stats_cache.get("total_xrp", 0),
         "last_update": stats_cache.get("last_update")
@@ -225,7 +364,7 @@ async def top(n: int = 100):
     pool = await get_pool()
     rows = await pool.fetch(
         "SELECT account, balance_xrp FROM accounts ORDER BY balance_xrp DESC LIMIT $1", 
-        min(n, 10000)  # Limiter à 10k max pour les performances
+        min(n, 10000)
     )
     return [
         {
@@ -246,7 +385,7 @@ async def balance_distribution():
             await update_stats_cache()
             result = stats_cache.get("balance_distribution", [])
 
-        if not result:  # Si toujours vide, retourner un tableau vide avec structure
+        if not result:
             print("📊 Aucune donnée de distribution disponible, retour d'un tableau vide")
             return []
 
@@ -267,7 +406,7 @@ async def balance_percentages():
             await update_stats_cache()
             result = stats_cache.get("percentages", [])
 
-        if not result:  # Si toujours vide, retourner un tableau vide avec structure
+        if not result:
             print("📈 Aucune donnée de pourcentage disponible, retour d'un tableau vide")
             return []
 
@@ -294,28 +433,13 @@ async def refresh_stats(background_tasks: BackgroundTasks):
     background_tasks.add_task(update_stats_cache)
     return {"message": "Mise à jour des statistiques en cours..."}
 
+# Nouveaux endpoints de recherche
+@app.get("/account/{account}")
+async def account_details(account: str):
+    """Informations complètes d'un compte (balance, rang, total, transactions)."""
+    return await get_account_full_info(account)
+
 @app.get("/search/{account}")
 async def search_account(account: str):
-    """Rechercher un compte spécifique"""
-    pool = await get_pool()
-
-    # Recherche exacte
-    row = await pool.fetchrow(
-        "SELECT account, balance_xrp FROM accounts WHERE account = $1", 
-        account
-    )
-
-    if not row:
-        return {"error": "Compte non trouvé"}
-
-    # Calculer le rang
-    rank_row = await pool.fetchrow(
-        "SELECT COUNT(*) + 1 as rank FROM accounts WHERE balance_xrp > $1",
-        row["balance_xrp"]
-    )
-
-    return {
-        "account": row["account"],
-        "balance_xrp": float(row["balance_xrp"]),
-        "rank": int(rank_row["rank"])
-    }
+    """Alias de /account/{account} pour compatibilité avec le frontend."""
+    return await get_account_full_info(account)

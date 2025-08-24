@@ -13,7 +13,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="fr">
-      <body className="bg-black text-white">
+      <body className="app-shell">
         {children}
       </body>
     </html>
