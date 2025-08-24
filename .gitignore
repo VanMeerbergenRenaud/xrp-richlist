@@ -16,6 +16,8 @@
 # next.js
 /.next/
 /out/
+web/.next/
+web/node_modules/
 
 # production
 /build
@@ -44,6 +46,3 @@ web/next-env.d.ts
 /.idea
 
 .pg
-
-/web/.next
-.next*

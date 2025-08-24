@@ -676,12 +676,12 @@ export default function Home() {
                     <div className="space-y-3 mb-4">
                         <div className="flex flex-col md:flex-row gap-3">
                             <div className="relative flex-1">
-                                <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-gray-300">🔎</span>
+                                <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-gray-300">🔎 </span>
                                 <input
                                     type="text"
                                     value={searchAccount}
                                     onChange={(e) => setSearchAccount(e.target.value)}
-                                    placeholder="Entrez une adresse XRP ou un montant (ex: r... ou 38 000)"
+                                    placeholder="Entrez une adresse XRP ou un montant de jeton"
                                     className="w-full pl-10 pr-4 py-3 bg-gray-900 border border-gray-700 rounded-xl text-white placeholder-gray-500 font-mono text-sm focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/30 focus:outline-none"
                                     onKeyDown={(e) => e.key === 'Enter' && handleSearchAccount()}
                                 />
@@ -689,7 +689,7 @@ export default function Home() {
                             <button
                                 onClick={handleSearchAccount}
                                 disabled={searchLoading || !searchAccount.trim()}
-                                className="px-8 py-3 rounded-xl text-white font-medium bg-cyan-600 hover:bg-cyan-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="px-8 py-2 rounded-xl text-white font-medium bg-cyan-600 hover:bg-cyan-500 disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 {searchLoading ? '🔄 Recherche...' : '🔍 Rechercher'}
                             </button>
@@ -743,11 +743,11 @@ export default function Home() {
                                             </div>
                                             <div className="bg-gray-900 rounded-lg p-3 border border-gray-700">
                                                 <div className="text-gray-400 text-xs">Au-dessus</div>
-                                                <div className="font-mono text-amber-300 text-lg">{formatFR(aboveVal)}</div>
+                                                <div className="font-mono text-white text-lg">{formatFR(aboveVal)}</div>
                                             </div>
                                             <div className="bg-gray-900 rounded-lg p-3 border border-gray-700">
                                                 <div className="text-gray-400 text-xs">En dessous</div>
-                                                <div className="font-mono text-amber-300 text-lg">{formatFR(belowVal)}</div>
+                                                <div className="font-mono text-white text-lg">{formatFR(belowVal)}</div>
                                             </div>
                                             <div className="bg-gray-900 rounded-lg p-3 border border-gray-700">
                                                 <div className="text-gray-400 text-xs">Percentile</div>
@@ -772,11 +772,11 @@ export default function Home() {
                                         <div className="space-y-3">
                                             <h4 className="text-gray-200 font-semibold border-b border-gray-700 pb-1">📋 Données de base</h4>
                                             <p><span className="text-gray-400 min-w-20 inline-block">Adresse:</span> <span className="font-mono text-white text-sm break-all">{searchResult.account}</span></p>
-                                            <p><span className="text-gray-400 min-w-20 inline-block">Balance:</span> <span className="font-mono text-indigo-400 font-bold text-lg">{searchResult.balance_xrp?.toLocaleString('fr-FR')} XRP</span></p>
+                                            <p><span className="text-gray-400 min-w-20 inline-block">Balance:</span> <span className="font-mono text-white font-bold text-lg">{searchResult.balance_xrp?.toLocaleString('fr-FR')} XRP</span></p>
                                             {typeof searchResult.rank === 'number' && (
                                                 <p>
                                                     <span className="text-gray-400 min-w-20 inline-block">Rang:</span>{" "}
-                                                    <span className="font-mono text-teal-400 font-bold">
+                                                    <span className="font-mono text-white font-bold">
                                                         #{searchResult.rank.toLocaleString('fr-FR')}
                                                     </span>
                                                     {typeof searchResult.total_accounts === 'number' && (
@@ -792,11 +792,11 @@ export default function Home() {
                                         </div>
                                         <div className="space-y-3">
                                             <h4 className="text-gray-200 font-semibold border-b border-gray-700 pb-1">🏢 Type de compte</h4>
-                                            <p><span className="text-gray-400 min-w-20 inline-block">Type:</span> <span className="text-blue-300 font-medium">{searchResult.account_type}</span></p>
+                                            <p><span className="text-gray-400 min-w-20 inline-block">Type:</span> <span className="text-white font-medium">{searchResult.account_type}</span></p>
                                             {searchResult.exchange_name && (
-                                                <p><span className="text-gray-400 min-w-20 inline-block">Exchange:</span> <span className="text-purple-300 font-medium">{searchResult.exchange_name}</span></p>
+                                                <p><span className="text-gray-400 min-w-20 inline-block">Exchange:</span> <span className="text-white font-medium">{searchResult.exchange_name}</span></p>
                                             )}
-                                            <p><span className="text-gray-400 min-w-20 inline-block">Trustlines:</span> <span className="text-orange-300 font-medium">{searchResult.trustlines}</span></p>
+                                            <p><span className="text-gray-400 min-w-20 inline-block">Trustlines:</span> <span className="text-white font-medium">{searchResult.trustlines}</span></p>
                                         </div>
                                     </div>
 
@@ -807,7 +807,7 @@ export default function Home() {
                                                 {searchResult.tokens.map((token, index) => (
                                                     <div key={index} className="flex justify-between items-center py-2 border-b border-gray-600 last:border-b-0">
                                                         <div>
-                                                            <span className="text-indigo-300 font-mono font-bold">{token.currency}</span>
+                                                            <span className="text-white font-mono font-bold">{token.currency}</span>
                                                             <span className="text-gray-400 text-xs ml-2">({token.issuer?.substring(0, 8)}...)</span>
                                                         </div>
                                                         <span className="text-white font-mono text-sm">{parseFloat(token.balance).toLocaleString('fr-FR')}</span>
@@ -823,7 +823,7 @@ export default function Home() {
                                                 <h4 className="text-gray-200 font-semibold mb-2 border-b border-gray-700 pb-1">🏴 Flags du compte</h4>
                                                 <div className="flex flex-wrap gap-2">
                                                     {searchResult.account_flags.map((flag, index) => (
-                                                        <span key={index} className="px-2 py-1 bg-blue-800 text-blue-200 rounded text-xs font-mono">{flag}</span>
+                                                        <span key={index} className="px-2 py-1 bg-blue-800 text-white rounded text-xs font-mono">{flag}</span>
                                                     ))}
                                                 </div>
                                             </div>
@@ -840,7 +840,7 @@ export default function Home() {
                                                             <div className="flex justify-between">
                                                                 <span className="text-white font-mono">{tx.type || 'Tx'}</span>
                                                                 {typeof tx.amount_xrp === 'number' && (
-                                                                    <span className="text-indigo-400 font-mono">{tx.amount_xrp.toLocaleString('fr-FR')} XRP</span>
+                                                                    <span className="text-white font-mono">{tx.amount_xrp.toLocaleString('fr-FR')} XRP</span>
                                                                 )}
                                                             </div>
                                                             <div className="text-gray-400 flex flex-wrap gap-3">
@@ -935,10 +935,10 @@ export default function Home() {
                                         className="font-mono text-white">{generalStats.total_accounts?.toLocaleString('fr-FR')}</span>
                                     </p>
                                     <p><span className="text-gray-400">Total XRP indexé:</span> <span
-                                        className="font-mono text-indigo-400">{generalStats.total_xrp?.toLocaleString('fr-FR')} XRP</span>
+                                        className="font-mono text-white">{generalStats.total_xrp?.toLocaleString('fr-FR')} XRP</span>
                                     </p>
                                     <p><span className="text-gray-400">Dernière mise à jour:</span> <span
-                                        className="font-mono text-teal-400">{generalStats.last_update ? new Date(generalStats.last_update).toLocaleString('fr-FR') : 'N/A'}</span>
+                                        className="font-mono text-white">{generalStats.last_update ? new Date(generalStats.last_update).toLocaleString('fr-FR') : 'N/A'}</span>
                                     </p>
                                     <p><span className="text-gray-400">Âge du cache:</span> <span
                                         className="font-mono text-gray-300">{generalStats.cache_age_minutes ? Math.round(generalStats.cache_age_minutes) + ' minutes' : 'N/A'}</span>
@@ -1030,7 +1030,7 @@ export default function Home() {
                         <span className="text-gray-400">API:</span>
                         <span className={`flex items-center gap-1 ${
                             apiStatus === 'online' ? 'text-cyan-400' :
-                                apiStatus === 'offline' ? 'text-red-400' : 'text-indigo-400'
+                                apiStatus === 'offline' ? 'text-red-400' : 'text-white'
                         }`}>
               <span className={`w-2 h-2 rounded-full ${
                   apiStatus === 'online' ? 'bg-cyan-400' :
@@ -1088,7 +1088,7 @@ export default function Home() {
                                 </div>
                                 <div className="bg-gray-900 rounded-lg p-4 border border-gray-700">
                                     <div className="text-gray-400 text-xs">Solde moyen par compte</div>
-                                    <div className="text-2xl font-mono text-teal-300">
+                                    <div className="text-2xl font-mono text-white">
                                         {loading ? (
                                             <div className="h-6 bg-gray-700/60 rounded animate-pulse w-28"></div>
                                         ) : (
