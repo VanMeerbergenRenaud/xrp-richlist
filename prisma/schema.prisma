@@ -1,0 +1,18 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model MetricsSnapshot {
+  id                 String   @id @default(cuid())
+  ts                 DateTime @default(now())
+  ledger_index       Int?
+  total_xrp_drops    BigInt?
+  non_escrow_drops   BigInt?
+  wallets_count      Int?
+  price_usd          Float?
+}

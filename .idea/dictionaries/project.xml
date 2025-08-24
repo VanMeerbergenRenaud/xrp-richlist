@@ -2,6 +2,8 @@
   <dictionary name="project">
     <words>
       <w>aktura</w>
+      <w>fastapi</w>
+      <w>xrpl</w>
       <w>xrpscan</w>
     </words>
   </dictionary>

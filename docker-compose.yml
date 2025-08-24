@@ -1,57 +1,8 @@
-services:
-  postgres:
-    image: postgres:15
-    container_name: xrp_postgres
-    restart: always
-    environment:
-      POSTGRES_USER: xrp_user
-      POSTGRES_PASSWORD: xrp_pass
-      POSTGRES_DB: xrp_explorer
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
-
-  redis:
-    image: redis:7
-    container_name: xrp_redis
-    restart: always
-    ports:
-      - "6379:6379"
-
-  backend:
-    build: ./backend
-    container_name: xrp_backend
-    restart: always
-    depends_on:
-      - postgres
-      - redis
-    environment:
-      DATABASE_URL: postgresql://xrp_user:xrp_pass@postgres:5432/xrp_explorer
-      REDIS_URL: redis://redis:6379/0
-    ports:
-      - "8000:8000"
-    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
-    volumes:
-      - ./backend:/code
-
-  frontend:
-    build: ./frontend
-    container_name: xrp_frontend
-    restart: always
-    depends_on:
-      - backend
-    ports:
-      - "3000:3000"
-    command: npm run dev
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
 version: "3.9"
 
 services:
   postgres:
-    image: postgres:15
+    image: postgres:15-alpine
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
@@ -60,14 +11,21 @@ services:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
   redis:
-    image: redis:7
-    command: ["redis-server", "--appendonly", "yes"]
+    image: redis:7-alpine
     ports:
       - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
 volumes:
   pgdata:
-volumes:
-  postgres_data:
