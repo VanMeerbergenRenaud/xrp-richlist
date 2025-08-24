@@ -1,6 +1,5 @@
-// Bornes de tranches (en XRP), en ordre croissant.
 // Doit rester strictement identique côté API et UI.
-export const BUCKET_EDGES: number[] = [
+export const BUCKET_EDGES: number[] = Object.freeze([
   0,
   20,
   500,
@@ -20,4 +19,6 @@ export const BUCKET_EDGES: number[] = [
   500_000_000,
   1_000_000_000,
   Number.POSITIVE_INFINITY
-];
+]);
+
+export default BUCKET_EDGES;

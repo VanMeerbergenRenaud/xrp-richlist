@@ -20,7 +20,7 @@ function isValidXrplAddress(addr: string) {
 async function fetchResource(url: string): Promise<FetchDebug> {
     try {
         const res = await fetch(url, {
-            next: { revalidate: 30 },
+            next: {revalidate: 30},
             headers: {
                 accept: "application/json",
                 referer: "https://xrpscan.com/",
@@ -183,10 +183,10 @@ export default async function Page({
 
             {addressValid && (
                 <div className="space-y-6">
-                    {/* Account Summary */}
+                    {/* Récapitulatif du compte */}
                     <div className="bg-white border rounded p-6">
                         <h2 className="text-xl font-bold mb-4 flex items-center">
-                            <span className="text-blue-500 mr-2">👤</span> Account summary
+                            <span className="text-blue-500 mr-2">👤</span> Récapitulatif du compte
                         </h2>
 
                         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -196,7 +196,8 @@ export default async function Page({
                                     <div className="font-medium text-gray-700 mb-1">Address</div>
                                     <div className="font-mono text-sm bg-gray-50 p-2 rounded">
                                         {accountAddress}
-                                        <button className="ml-2 text-gray-400 hover:text-gray-600" title="Copy">📋</button>
+                                        <button className="ml-2 text-gray-400 hover:text-gray-600" title="Copy">📋
+                                        </button>
                                     </div>
                                 </div>
 
@@ -204,7 +205,8 @@ export default async function Page({
                                     <div className="font-medium text-gray-700 mb-1">Last tx:</div>
                                     <div className="text-sm">
                                         {previousTxnID ? (
-                                            <span className="font-mono text-blue-600">{previousTxnID.substring(0, 12)}...</span>
+                                            <span
+                                                className="font-mono text-blue-600">{previousTxnID.substring(0, 12)}...</span>
                                         ) : "—"}
                                         {txList.length > 0 && (
                                             <span className="text-red-500 ml-2">{txList.length.toLocaleString()}</span>
@@ -254,21 +256,24 @@ export default async function Page({
                                 <div>
                                     <div className="font-medium text-gray-700 mb-1">Destination tag:</div>
                                     <div className="text-sm">
-                                        <span className="bg-green-100 text-green-800 px-2 py-1 rounded text-xs">REQUIRED</span>
+                                        <span
+                                            className="bg-green-100 text-green-800 px-2 py-1 rounded text-xs">REQUIRED</span>
                                     </div>
                                 </div>
 
                                 <div>
                                     <div className="font-medium text-gray-700 mb-1">Rippling:</div>
                                     <div className="text-sm">
-                                        <span className="bg-green-100 text-green-800 px-2 py-1 rounded text-xs">ENABLED</span>
+                                        <span
+                                            className="bg-green-100 text-green-800 px-2 py-1 rounded text-xs">ENABLED</span>
                                     </div>
                                 </div>
 
                                 <div>
                                     <div className="font-medium text-gray-700 mb-1">Multisig:</div>
                                     <div className="text-sm">
-                                        <span className="bg-green-100 text-green-800 px-2 py-1 rounded text-xs">ENABLED</span>
+                                        <span
+                                            className="bg-green-100 text-green-800 px-2 py-1 rounded text-xs">ENABLED</span>
                                     </div>
                                 </div>
 
@@ -296,24 +301,25 @@ export default async function Page({
                                     <div className="font-medium text-gray-700 mb-1">Account root:</div>
                                     <div className="text-sm">
                                         {accountRoot ? (
-                                            <span className="font-mono text-blue-600">{accountRoot.substring(0, 12)}...</span>
+                                            <span
+                                                className="font-mono text-blue-600">{accountRoot.substring(0, 12)}...</span>
                                         ) : "—"}
                                     </div>
                                 </div>
                             </div>
 
-                            {/* Colonne de droite - Balance */}
+                            {/* Colonne de droite - Solde */}
                             <div className="bg-gray-50 rounded p-4">
                                 <div className="text-center mb-4">
                                     <div className="text-6xl mb-2">💎</div>
-                                    <div className="font-medium text-gray-700 mb-1">Domain</div>
+                                    <div className="font-medium text-gray-700 mb-1">Domaine</div>
                                     <div className="text-blue-600 text-sm">{domain || "—"}</div>
                                 </div>
 
                                 <div className="bg-green-100 rounded p-4 text-center">
-                                    <div className="text-gray-600 text-sm mb-1">Balance</div>
-                                    <div className="text-gray-600 text-sm mb-1">Reserve</div>
-                                    <div className="text-gray-600 text-sm mb-1">Available</div>
+                                    <div className="text-gray-600 text-sm mb-1">Solde</div>
+                                    <div className="text-gray-600 text-sm mb-1">Réserve</div>
+                                    <div className="text-gray-600 text-sm mb-1">Disponible</div>
                                     <div className="text-xl font-bold text-green-700">
                                         {fmtXrp(accountBalanceXrp)} XRP
                                     </div>
@@ -332,17 +338,18 @@ export default async function Page({
                                     <tr className="border-b bg-gray-50">
                                         <th className="text-left py-3 px-4">Type</th>
                                         <th className="text-left py-3 px-4">Date</th>
-                                        <th className="text-left py-3 px-4">Tx hash</th>
-                                        <th className="text-left py-3 px-4">From</th>
-                                        <th className="text-left py-3 px-4">To</th>
-                                        <th className="text-left py-3 px-4">Amount</th>
+                                        <th className="text-left py-3 px-4">Hash tx</th>
+                                        <th className="text-left py-3 px-4">De</th>
+                                        <th className="text-left py-3 px-4">Vers</th>
+                                        <th className="text-left py-3 px-4">Montant</th>
                                     </tr>
                                     </thead>
                                     <tbody>
                                     {txList.map((t, i) => (
                                         <tr key={i} className="border-b hover:bg-gray-50">
                                             <td className="py-3 px-4">
-                                                    <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">
+                                                    <span
+                                                        className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">
                                                         {t?.TransactionType || t?.transaction_type || "—"}
                                                     </span>
                                             </td>
@@ -362,7 +369,7 @@ export default async function Page({
                                             </td>
                                             <td className="py-3 px-4">
                                                 {t?.Account ? (
-                                                    <Link 
+                                                    <Link
                                                         href={`/xrpscan/search?q=${encodeURIComponent(t.Account)}`}
                                                         className="font-mono text-xs text-blue-600 hover:text-blue-800 hover:underline cursor-pointer"
                                                         title={`Voir les détails de l'adresse ${t.Account}`}
@@ -375,7 +382,7 @@ export default async function Page({
                                             </td>
                                             <td className="py-3 px-4">
                                                 {t?.Destination ? (
-                                                    <Link 
+                                                    <Link
                                                         href={`/xrpscan/search?q=${encodeURIComponent(t.Destination)}`}
                                                         className="font-mono text-xs text-blue-600 hover:text-blue-800 hover:underline cursor-pointer"
                                                         title={`Voir les détails de l'adresse ${t.Destination}`}
@@ -402,7 +409,13 @@ export default async function Page({
                         <div className="bg-white border rounded p-4">
                             <h2 className="text-lg font-bold mb-3">Tokens & Soldes</h2>
                             <table className="w-full text-sm">
-                                <thead><tr className="border-b"><th className="text-left py-1">Devise</th><th className="text-left py-1">Montant</th><th className="text-left py-1">Émetteur</th></tr></thead>
+                                <thead>
+                                <tr className="border-b">
+                                    <th className="text-left py-1">Devise</th>
+                                    <th className="text-left py-1">Montant</th>
+                                    <th className="text-left py-1">Émetteur</th>
+                                </tr>
+                                </thead>
                                 <tbody>
                                 {balancesList.map((b, i) => (
                                     <tr key={i} className="border-b">
@@ -421,7 +434,13 @@ export default async function Page({
                         <div className="bg-white border rounded p-4">
                             <h2 className="text-lg font-bold mb-3">Trustlines</h2>
                             <table className="w-full text-sm">
-                                <thead><tr className="border-b"><th className="text-left py-1">Devise</th><th className="text-left py-1">Limite</th><th className="text-left py-1">Émetteur</th></tr></thead>
+                                <thead>
+                                <tr className="border-b">
+                                    <th className="text-left py-1">Devise</th>
+                                    <th className="text-left py-1">Limite</th>
+                                    <th className="text-left py-1">Émetteur</th>
+                                </tr>
+                                </thead>
                                 <tbody>
                                 {trustlinesList.slice(0, 20).map((tl, i) => (
                                     <tr key={i} className="border-b">
@@ -432,7 +451,9 @@ export default async function Page({
                                 ))}
                                 </tbody>
                             </table>
-                            {trustlinesList.length > 20 && <p className="text-xs text-gray-500 mt-2">+{trustlinesList.length - 20} autres trustlines</p>}
+                            {trustlinesList.length > 20 &&
+                                <p className="text-xs text-gray-500 mt-2">+{trustlinesList.length - 20} autres
+                                    trustlines</p>}
                         </div>
                     )}
 
@@ -446,7 +467,9 @@ export default async function Page({
                                     {debug.error && <span className="text-red-600"> - {debug.error}</span>}
                                     {key === 'transactions' && debug.json && (
                                         <details className="ml-4 mt-1">
-                                            <summary className="cursor-pointer text-blue-600">Voir structure des transactions</summary>
+                                            <summary className="cursor-pointer text-blue-600">Voir structure des
+                                                transactions
+                                            </summary>
                                             <pre className="mt-1 text-xs bg-white p-2 rounded overflow-auto max-h-40">
                                                 {JSON.stringify(txList.slice(0, 2), null, 2)}
                                             </pre>
