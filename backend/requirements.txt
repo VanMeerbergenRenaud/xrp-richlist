@@ -1,0 +1,35 @@
+# Framework web
+fastapi==0.111.0
+uvicorn[standard]==0.30.1
+
+# XRP Ledger
+xrpl-py==2.6.0
+
+# Base de données (Postgres via SQLAlchemy + async)
+SQLAlchemy==2.0.30
+asyncpg==0.29.0
+
+# ORM asynchrone
+databases[postgresql]==0.9.0
+
+# Cache Redis
+aioredis==2.0.1
+fastapi==0.110.0
+uvicorn[standard]==0.27.1
+pydantic==2.6.4
+sqlalchemy==2.0.29
+redis==5.0.4
+xrpl-py==2.4.0
+httpx==0.27.0
+python-dotenv==1.0.1
+# Outils divers
+python-dotenv==1.0.1
+pydantic==2.8.2
+requests==2.32.3
+
+# Tâches planifiées
+APScheduler==3.10.4
+
+# Tests
+pytest==8.2.2
+httpx==0.24.1   # ✅ version compatible avec fastapi et xrpl-py
