@@ -1,1 +1,0 @@
-This file exists to ensure the styles directory is created by the patch tool.

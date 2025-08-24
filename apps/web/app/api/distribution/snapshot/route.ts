@@ -8,7 +8,7 @@ import {
     resetSnapshot,
     writeSnapshot
 } from "../../../../lib/distributionStore";
-import {BUCKET_EDGES} from "../../../xrpscan/stats/BUCKET_EDGES";
+import {BUCKET_EDGES} from "../../../(site)/stats/lib/BUCKET_EDGES";
 
 // Applique une page ledger_data sur des buckets en mémoire, renvoie comptes traités
 async function applyOnePage(

@@ -25,15 +25,15 @@ async function fetchResource(url: string): Promise<FetchDebug> {
                 accept: "application/json",
                 referer: "https://xrpscan.com/",
                 origin: "https://xrpscan.com",
-                "user-agent": "xrp-richlist/0.1 (+https://example.com)",
-            },
+                "user-agent": "xrp-richlist/0.1 (+https://example.com)"
+            }
         });
         const contentType = res.headers.get("content-type");
         const out: FetchDebug = {
             url,
             ok: res.ok,
             status: `${res.status} ${res.statusText}`,
-            contentType,
+            contentType
         };
         if (contentType && contentType.includes("application/json")) {
             try {
@@ -52,7 +52,7 @@ async function fetchResource(url: string): Promise<FetchDebug> {
             ok: false,
             status: "fetch error",
             contentType: null,
-            error: String(e?.message ?? e),
+            error: String(e?.message ?? e)
         };
     }
 }
@@ -69,57 +69,47 @@ function fmtXrpAmount(dropsValue?: string | number | null): string {
     if (dropsValue == null) return "—";
     const drops = typeof dropsValue === "string" ? parseFloat(dropsValue) : dropsValue;
     if (!Number.isFinite(drops)) return "—";
-
-    // Convertir les drops en XRP (diviser par 1 000 000)
     const xrp = drops / 1_000_000;
-
-    // Formatage manuel pour obtenir exactement le format souhaité
-    const parts = xrp.toFixed(6).split('.');
+    const parts = xrp.toFixed(6).split(".");
     const integerPart = parts[0];
     const decimalPart = parts[1];
-
-    // Ajouter des points comme séparateur de milliers
-    const formattedInteger = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-
-    // Retourner avec virgule comme séparateur décimal
+    const formattedInteger = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
     return `${formattedInteger},${decimalPart}`;
 }
 
 function extractAmount(tx: any): string {
-    // Essayer différentes propriétés de montant dans les transactions XRPL
-    const amount = tx?.Amount || tx?.amount || tx?.delivered_amount || tx?.DeliveredAmount ||
-        tx?.meta?.delivered_amount || tx?.meta?.DeliveredAmount || tx?.specification?.amount;
+    const amount =
+        tx?.Amount ||
+        tx?.amount ||
+        tx?.delivered_amount ||
+        tx?.DeliveredAmount ||
+        tx?.meta?.delivered_amount ||
+        tx?.meta?.DeliveredAmount ||
+        tx?.specification?.amount;
 
     if (!amount) return "—";
 
-    // Si c'est un objet, extraire la valeur
-    if (typeof amount === 'object') {
+    if (typeof amount === "object") {
         if (amount.value !== undefined) {
-            // Si c'est XRP, la valeur est TOUJOURS en drops, même dans un objet
-            if (amount.currency === 'XRP' || !amount.currency) {
-                return fmtXrpAmount(amount.value) + ' XRP';
+            if (amount.currency === "XRP" || !amount.currency) {
+                return fmtXrpAmount(amount.value) + " XRP";
             }
-            // Sinon c'est un autre token (pas en drops)
             return `${amount.value} ${amount.currency}`;
         }
         if (amount.amount) {
-            // Si c'est un objet avec amount, c'est en drops
-            return fmtXrpAmount(amount.amount) + ' XRP';
+            return fmtXrpAmount(amount.amount) + " XRP";
         }
     }
 
-    // Si c'est une string ou number (drops XRP)
-    if (typeof amount === 'string' || typeof amount === 'number') {
-        // Les montants simples sont en drops
-        return fmtXrpAmount(amount) + ' XRP';
+    if (typeof amount === "string" || typeof amount === "number") {
+        return fmtXrpAmount(amount) + " XRP";
     }
-
     return "—";
 }
 
-export default async function Page({
-                                       searchParams,
-                                   }: {
+export default async function Index({
+    searchParams
+}: {
     searchParams: { q?: string };
 }) {
     const q = (searchParams?.q || "").trim();
@@ -133,9 +123,9 @@ export default async function Page({
             transactions: `${API_ROOT}/account/${q}/transactions?limit=20`,
             trustlines: `${API_ROOT}/account/${q}/trustlines?limit=200`,
             nfts: `${API_ROOT}/account/${q}/nfts`,
-            dexOrders: `${API_ROOT}/account/${q}/dex-orders`,
+            dexOrders: `${API_ROOT}/account/${q}/dex-orders`
         };
-        const results = await Promise.all(Object.values(urls).map(u => fetchResource(u)));
+        const results = await Promise.all(Object.values(urls).map((u) => fetchResource(u)));
         Object.keys(urls).forEach((key, i) => {
             byKey[key] = results[i];
         });
@@ -153,9 +143,9 @@ export default async function Page({
 
     const accountAddress = accountJson?.account ?? q;
     const accountBalanceXrp = accountJson?.balance ?? accountJson?.xrpBalance;
-    const xrpBalanceNum = typeof accountBalanceXrp === 'string' ? parseFloat(accountBalanceXrp) / 1_000_000 : (accountBalanceXrp || 0);
+    const xrpBalanceNum =
+        typeof accountBalanceXrp === "string" ? parseFloat(accountBalanceXrp) / 1_000_000 : accountBalanceXrp || 0;
 
-    // Propriétés supplémentaires pour correspondre à XRPScan
     const sequence = accountJson?.sequence ?? accountJson?.Sequence ?? null;
     const previousTxnID = accountJson?.previousTxnID ?? accountJson?.PreviousTxnID ?? null;
     const ownerCount = accountJson?.ownerCount ?? accountJson?.OwnerCount ?? null;
@@ -174,12 +164,12 @@ export default async function Page({
                     placeholder="Adresse XRPL (r...)"
                     className="border p-2 rounded mr-2 w-96"
                 />
-                <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded">Rechercher</button>
+                <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded">
+                    Rechercher
+                </button>
             </form>
 
-            {q && !addressValid && (
-                <div className="bg-red-100 p-3 rounded mb-4">Adresse invalide</div>
-            )}
+            {q && !addressValid && <div className="bg-red-100 p-3 rounded mb-4">Adresse invalide</div>}
 
             {addressValid && (
                 <div className="space-y-6">
@@ -196,7 +186,8 @@ export default async function Page({
                                     <div className="font-medium text-gray-700 mb-1">Address</div>
                                     <div className="font-mono text-sm bg-gray-50 p-2 rounded">
                                         {accountAddress}
-                                        <button className="ml-2 text-gray-400 hover:text-gray-600" title="Copy">📋
+                                        <button className="ml-2 text-gray-400 hover:text-gray-600" title="Copy">
+                                            📋
                                         </button>
                                     </div>
                                 </div>
@@ -207,10 +198,11 @@ export default async function Page({
                                         {previousTxnID ? (
                                             <span
                                                 className="font-mono text-blue-600">{previousTxnID.substring(0, 12)}...</span>
-                                        ) : "—"}
-                                        {txList.length > 0 && (
-                                            <span className="text-red-500 ml-2">{txList.length.toLocaleString()}</span>
+                                        ) : (
+                                            "—"
                                         )}
+                                        {txList.length > 0 &&
+                                            <span className="text-red-500 ml-2">{txList.length.toLocaleString()}</span>}
                                     </div>
                                 </div>
 
@@ -249,7 +241,9 @@ export default async function Page({
                                                 <span>{sequence.toLocaleString()}</span>
                                                 <span className="text-gray-500 ml-2">#{sequence}</span>
                                             </>
-                                        ) : "—"}
+                                        ) : (
+                                            "—"
+                                        )}
                                     </div>
                                 </div>
 
@@ -303,7 +297,9 @@ export default async function Page({
                                         {accountRoot ? (
                                             <span
                                                 className="font-mono text-blue-600">{accountRoot.substring(0, 12)}...</span>
-                                        ) : "—"}
+                                        ) : (
+                                            "—"
+                                        )}
                                     </div>
                                 </div>
                             </div>
@@ -320,8 +316,7 @@ export default async function Page({
                                     <div className="text-gray-600 text-sm mb-1">Solde</div>
                                     <div className="text-gray-600 text-sm mb-1">Réserve</div>
                                     <div className="text-gray-600 text-sm mb-1">Disponible</div>
-                                    <div className="text-xl font-bold text-green-700">
-                                        {fmtXrp(accountBalanceXrp)} XRP
+                                    <div className="text-xl font-bold text-green-700">{fmtXrp(accountBalanceXrp)} XRP
                                     </div>
                                 </div>
                             </div>
@@ -348,24 +343,17 @@ export default async function Page({
                                     {txList.map((t, i) => (
                                         <tr key={i} className="border-b hover:bg-gray-50">
                                             <td className="py-3 px-4">
-                                                    <span
-                                                        className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">
-                                                        {t?.TransactionType || t?.transaction_type || "—"}
-                                                    </span>
+                          <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">
+                            {t?.TransactionType || t?.transaction_type || "—"}
+                          </span>
                                             </td>
                                             <td className="py-3 px-4">
-                                                {t?.Date || t?.date ?
-                                                    new Date(t.Date || t.date).toLocaleString("fr-FR") :
-                                                    "—"
-                                                }
+                                                {t?.Date || t?.date ? new Date(t.Date || t.date).toLocaleString("fr-FR") : "—"}
                                             </td>
                                             <td className="py-3 px-4">
-                                                    <span className="font-mono text-xs text-blue-600">
-                                                        {t?.Hash || t?.hash ?
-                                                            (t.Hash || t.hash).substring(0, 16) + "..." :
-                                                            "—"
-                                                        }
-                                                    </span>
+                          <span className="font-mono text-xs text-blue-600">
+                            {t?.Hash || t?.hash ? (t.Hash || t.hash).substring(0, 16) + "..." : "—"}
+                          </span>
                                             </td>
                                             <td className="py-3 px-4">
                                                 {t?.Account ? (
@@ -393,9 +381,7 @@ export default async function Page({
                                                     <span className="font-mono text-xs">—</span>
                                                 )}
                                             </td>
-                                            <td className="py-3 px-4 font-medium">
-                                                {extractAmount(t)}
-                                            </td>
+                                            <td className="py-3 px-4 font-medium">{extractAmount(t)}</td>
                                         </tr>
                                     ))}
                                     </tbody>
@@ -451,9 +437,10 @@ export default async function Page({
                                 ))}
                                 </tbody>
                             </table>
-                            {trustlinesList.length > 20 &&
+                            {trustlinesList.length > 20 && (
                                 <p className="text-xs text-gray-500 mt-2">+{trustlinesList.length - 20} autres
-                                    trustlines</p>}
+                                    trustlines</p>
+                            )}
                         </div>
                     )}
 
@@ -465,14 +452,14 @@ export default async function Page({
                                 <div key={key} className="text-xs">
                                     <strong>{key}:</strong> {debug.ok ? "✅" : "❌"} {debug.status}
                                     {debug.error && <span className="text-red-600"> - {debug.error}</span>}
-                                    {key === 'transactions' && debug.json && (
+                                    {key === "transactions" && debug.json && (
                                         <details className="ml-4 mt-1">
                                             <summary className="cursor-pointer text-blue-600">Voir structure des
                                                 transactions
                                             </summary>
                                             <pre className="mt-1 text-xs bg-white p-2 rounded overflow-auto max-h-40">
                                                 {JSON.stringify(txList.slice(0, 2), null, 2)}
-                                            </pre>
+                                              </pre>
                                         </details>
                                     )}
                                 </div>
